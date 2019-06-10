@@ -13,9 +13,20 @@ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 See the Lesser GNU General Public License for more details. <http://www.gnu.org/licenses/lgpl.html>.
 '''
 
-try:    import xml.etree.cElementTree as E
-except: import xml.etree.ElementTree as E
-import os, sys, types, re, math
+import math
+import os
+import re
+import sys
+import types
+from glob import glob
+from optparse import OptionParser
+from zipfile import ZipFile
+
+try:
+    import xml.etree.cElementTree as E
+except:
+    import xml.etree.ElementTree as E
+
 
 VERSION = 139
 
@@ -1506,10 +1517,8 @@ class Parser:
 #----------------
 # Main Program
 #----------------
-if __name__ == '__main__':
-    from optparse import OptionParser
-    from glob import glob
-    from zipfile import ZipFile 
+def main(args=None):
+    global abcOut
     ustr = '%prog [-h] [-u] [-m] [-c C] [-d D] [-n CPL] [-b BPL] [-o DIR] [-v V]\n'
     ustr += '[-x] [-p PFMT] [-t] [-s] [-i] [--v1] [--noped] [--stems] <file1> [<file2> ...]'
     parser = OptionParser (usage=ustr, version=str(VERSION))
@@ -1530,7 +1539,7 @@ if __name__ == '__main__':
     parser.add_option ("--noped", action="store_false", help="skip all pedal directions", dest='ped', default=True)
     parser.add_option ("--stems", action="store_true", help="translate stem directions", dest='stm', default=False)
     parser.add_option ("-i", action="store_true", help="read xml file from standard input")
-    options, args = parser.parse_args ()
+    options, args = parser.parse_args (args if args is not None else sys.argv[1:])
     if options.n < 0: parser.error ('only values >= 0')
     if options.b < 0: parser.error ('only values >= 0')
     if options.d and options.d not in [2**n for n in range (10)]:
@@ -1571,3 +1580,7 @@ if __name__ == '__main__':
         except:
             etype, value, traceback = sys.exc_info ()   # works in python 2 & 3
             info ('** %s occurred: %s in %s' % (etype, value, fnmext), 0)
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]) or 0)
